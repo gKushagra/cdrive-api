@@ -1,13 +1,11 @@
 require('dotenv').config();
-var cStorageDir = path.resolve(__dirname + process.env.C_STORAGE);
-
+var express = require('express');
 var formidable = require('formidable');
 var path = require('path');
 var fs = require('fs');
 var mime = require('mime-types');
-
-var express = require('express');
 var router = express.Router();
+var cStorageDir = path.resolve(__dirname + process.env.C_STORAGE);
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -80,13 +78,20 @@ router.post('/file/upload/:id/:dir', function (req, res, next) {
 
 /** POST download a file */
 router.post('/file/download', function (req, res, next) {
-
+  let data = req.body;
+  // console.log(data);
+  try {
+    res.download(data.filePath);
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
 });
 
 /** POST rename a file */
 router.post('/file/rename', function (req, res, next) {
   let data = req.body;
-  console.log(data);
+  // console.log(data);
   try {
     let currDirArr = data.filePath.split("/");
     let currDirPath = currDirArr.slice(0, currDirArr.length - 1).toString();
@@ -102,7 +107,7 @@ router.post('/file/rename', function (req, res, next) {
 /** POST delete a file */
 router.post('/file/delete', function (req, res, next) {
   let data = req.body;
-  console.log(data);
+  // console.log(data);
   try {
     fs.unlinkSync(data.filePath);
     res.status(200).json("deleted");
@@ -156,7 +161,7 @@ router.get('/directory/:id', function (req, res, next) {
 /** POST add a directory */
 router.post('/directory/add', function (req, res, next) {
   let data = req.body;
-  console.log(data);
+  // console.log(data);
   try {
     if (!fs.existsSync(data.newDirPath)) {
       fs.mkdirSync(data.newDirPath)
@@ -173,7 +178,7 @@ router.post('/directory/add', function (req, res, next) {
 /** POST rename a directory */
 router.post('/directory/rename', function (req, res, next) {
   let data = req.body;
-  console.log(data);
+  // console.log(data);
   try {
     let currDirArr = data.dirPath.split("/");
     let currDirPath = currDirArr.slice(0, currDirArr.length - 1).toString();
@@ -193,7 +198,7 @@ router.post('/directory/rename', function (req, res, next) {
 /** POST delete a directory */
 router.post('/directory/delete', function (req, res, next) {
   let data = req.body;
-  console.log(data);
+  // console.log(data);
   try {
     fs.rmdirSync(data.dirPath, { recursive: true });
     res.status(200).json("deleted");
